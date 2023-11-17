@@ -1,0 +1,911 @@
+openapi: 3.0.3
+info:
+  title: Library API
+  version: 1.3.0
+  description: STD22001
+servers:
+  - url: https://library.com
+tags:
+  - name: Books
+  - name: Authors
+  - name: VISITOR
+security:
+  - BearerAuth: [ ]
+paths:
+  /books:
+    get:
+      tags:
+        - Books
+      summary: Get all books
+      description: The returned books are ordered by updated datetime.
+      operationId: getBooks
+      security:
+        - OAuth2: ['VISITOR','ADMINISTRATOR']
+      parameters:
+        - in: query
+          name: page
+          schema:
+            $ref: '#/components/parameters/QueryPagination/schema/properties/page'
+        - in: query
+          name: pagesize
+          schema:
+            $ref: '#/components/parameters/QueryPagination/schema/properties/page_size'
+
+        - in: query
+          name: bookName
+          description: Filter return books by given name
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: releaseDateMin
+          description: If 'releaseDateMax' is note provide,'releaseDateMin' is ignored 'releaseDateMax' can not be after 'releaseDateMin'
+          schema:
+            type: string
+            format: date
+          required: false
+        - in: query
+          name: releaseDateMax
+          description: If 'releaseDateMin' is note provide,'releaseDateMax' is ignored 'releaseDateMin' can not be after 'releaseDateMax'
+          schema:
+            type: string
+            format: date
+          required: false
+      responses:
+        200:
+          description: List of Book
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookListBody'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+        500:
+          description: Internal Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+    put:
+      tags:
+        - Books
+      summary: Create or update a list of books
+      operationId: crupdateBooks
+      security:
+        - OAuth2: ['ADMINISTRATOR']
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Book'
+      responses:
+        200:
+          description: List of Book
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookListBody'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+        500:
+          description: Internal Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+
+  /books/{bookId}/authors/{authorId} :
+    put:
+      tags:
+        - Books
+      summary: create or update book
+      description: This operation create or update author of the book by specification id.
+      operationId: crupdateBookAuthor
+      security:
+        - OAuth2: ['ADMINISTRATOR']
+      parameters:
+        - in: query
+          name: bookId
+          description: Create books by given bookId
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: authorId
+          description: Create  books by given authorId
+          schema:
+            type: string
+          required: false
+      responses:
+        200:
+          description: List of created  Book
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrupdateBookListBody'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+        500:
+          description: Internal Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+  /books/import:
+    post:
+      tags:
+        - Books
+      summary: Create  a list of books
+      operationId: createBooks
+      security:
+        - OAuth2: ['ADMINISTRATOR']
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportBookJson'
+          application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+            schema:
+              $ref: '#/components/schemas/ImportBookExel'
+      responses:
+        200:
+          description: List of created  Book
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrupdateBookListBody'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+        500:
+          description: Internal Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+  /authors/import:
+    post:
+      tags:
+        - Authors
+      summary: Create  a list of author
+      operationId: createAuthors
+      security:
+        - OAuth2: ['ADMINISTRATOR']
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportAuthorJson'
+          application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+            schema:
+              $ref: '#/components/schemas/ImportAuthorExel'
+      responses:
+        200:
+          description: List of created  Author
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorListBody'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+        500:
+          description: Internal Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+  /authors:
+    get:
+      summary: Get author by name
+      description:  Retrieve a list of authors, optionally filtered by name.
+      operationId: getByAuthorName
+      security:
+        - OAuth2: ['VISITOR','ADMINISTRATOR']
+      tags:
+        - Authors
+      parameters:
+        - in: query
+          name: name
+          description: Name to filter authors
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: List of filtred Author by name .
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorListBody'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+        500:
+          description: Internal Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+    put:
+      tags:
+        - Authors
+      security:
+        - OAuth2: ['ADMINISTRATOR']
+      summary: Create or update a list of authors
+      operationId: crupdateAuthors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Author'
+      responses:
+        200:
+          description: List of created or updated Author .
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorListBody'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+        500:
+          description: Internal Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+  /authors/page/{page}/pagesize/{pagesize}:
+    get:
+      summary: Get author by name
+      description:  Retrieve a list of authors, optionally filtered by name.
+      operationId: getByAuthorName
+      tags:
+        - Authors
+      security:
+        - OAuth2: ['VISITOR','ADMINISTRATOR']
+      parameters:
+        - name: page
+          in: path
+          schema:
+            $ref: '#/components/parameters/QueryPagination/schema/properties/page'
+          required: true
+        - name: pagesize
+          in: path
+          schema:
+            $ref: '#/components/parameters/QueryPagination/schema/properties/page_size'
+          required: true
+        - in: query
+          name: name
+          description: Name to filter authors
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: List of filtred  Author.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorListBody'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+        500:
+          description: Internal Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+  /authors/{aId}:
+    delete:
+      summary: Delete an author
+      operationId: deleteAuthor
+      tags:
+        - Authors
+      security:
+        - OAuth2: ['ADMINISTRATOR']
+      parameters:
+        - name: aId
+          in: path
+          description: Author identity to be delete
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: Delete Author  Author .
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorListBody'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+        500:
+          description: Internal Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+  /visitor{visitorId}/book/{bookId}/emprunts:
+    put:
+      tags:
+        - VISITOR
+      security:
+        - OAuth2: ['VISITOR','ADMINISTRATOR']
+      summary: Crupdate a list of borrowed book
+      operationId: create Boroowing
+      parameters:
+        - in: query
+          name: visitorId
+          description: crupdate the information of the visitor identified by {visitorId} with the data provided in the request body.
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: bookId
+          description: crupdate the details of the book identified by {bookId} using the information provided in the request body.
+          required: false
+          schema:
+            type: string
+      requestBody :
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmpruntDetails'
+      responses:
+        200:
+          description: List Borowed  Book
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmpruntDetailsBody'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+        500:
+          description: Internal Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+  /book/{bookId}/status:
+    get:
+      tags:
+        - Books
+      summary: Get book availability status
+      description: Return the availability status of a specific book.
+      operationId: getBookStatus
+      security:
+        - OAuth2: ['VISITOR', 'ADMINISTRATOR']
+
+      parameters:
+        - name: bookId
+          in: path
+          description: ID of the book
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: 'Book status: "disponible" or "emprunte"'
+          required: true
+          schema:
+            $ref: '#/components/schemas/Availability'
+        - $ref: '#/components/parameters/QueryPagination'
+
+      responses:
+        200:
+          description: Book status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+        500:
+          description: Internal Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+
+
+  /book/{bookId}/emprunts/{empruntsId}/visitor/{visitorId}:
+    get:
+      summary: Get loan details for a specific visitor .
+      description: know which books were borrowed and returned by this visitor. .
+      operationId: getEmpruntDetailsForVisitor
+      tags:
+        - "VISITOR"
+      security:
+        - OAuth2: ['VISITOR','ADMINISTRATOR']
+      parameters:
+        - in: path
+          name: bookId
+          required: true
+          schema:
+            type: string
+          description: the book ID
+        - in: path
+          name: empruntsId
+          required: true
+          schema:
+            type: string
+          description: the emprunts ID
+        - in: path
+          name: visitorId
+          required: true
+          schema:
+            type: string
+          description: the visitor ID
+        - in: query
+          name: page
+          schema:
+            $ref: '#/components/parameters/QueryPagination/schema/properties/page'
+        - in: query
+          name: pagesize
+          schema:
+            $ref: '#/components/parameters/QueryPagination/schema/properties/page_size'
+
+      responses:
+        200:
+          description: get list borowed  book .
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmpruntDetailsBody'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+        500:
+          description: Internal Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+  /visitors/{visitorId}/activities:
+    get:
+      summary: Get the activity of a visitors
+      description: |
+        Get the activity of a visitors
+      operationId: getVisitorActivities
+      tags:
+        - "VISITOR"
+      security:
+        - OAuth2: ['VISITOR','ADMINISTRATOR']
+      parameters:
+        - in: path
+          name: visitorId
+          required: true
+          schema:
+            type: string
+          description: the visitor ID
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date-time
+          description: start of the date (format ISO 8601)
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date-time
+          description: end of the date(format ISO 8601)
+
+      responses:
+        200:
+          description: list of activity for a visitor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmpruntDetailsBody'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+        500:
+          description: Internal Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+components:
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://example.com/oauth/authorize
+          scopes:
+            VISITOR: Access as a visitor
+            ADMINISTRATOR: Access as administrator
+  schemas:
+    Book:
+      type: object
+      properties:
+        availability:
+          $ref: '#/components/schemas/Availability'
+        author:
+          $ref: '#/components/schemas/Author'
+      allOf:
+        - $ref: '#/components/schemas/CrupdateBooks'
+
+    Author:
+      type: object
+      properties:
+        name:
+          type: string
+        sex:
+          $ref: '#/components/schemas/Sex'
+    Visitor:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        reference:
+          type: string
+    Emprunts:
+      type: object
+      properties:
+        idVisitor:
+          type: string
+        idBook:
+          type: string
+        borrowing date:
+          type: string
+          format: date
+    Return:
+      type: object
+      properties:
+        idEmprunt:
+          type: string
+        return date:
+          type: string
+          format: date
+    EmpruntDetails:
+      type: object
+      properties:
+        rendu:
+          type: boolean
+      allOf:
+        - $ref: '#/components/schemas/Emprunts'
+        - properties:
+            returnDate:
+              type: string
+              format: date
+          required:
+            - rendu
+            - returnDate
+    Availability:
+      type: string
+      enum:
+        - Disponible
+        - Borowed
+    Sex:
+      type: string
+      enum:
+        - M
+        - F
+    Topic:
+      type: string
+      enum:
+        - ROMANCE
+        - COMEDY
+        - OTHER
+    CrupdateBooks:
+      type: object
+      properties:
+        bookName:
+          type: string
+        topic:
+          $ref: '#/components/schemas/Topic'
+
+        pageNumbers:
+          $ref: '#/components/parameters/QueryPagination'
+        releaseDate:
+          type: string
+          format: date
+    UpdateBooks:
+      type: object
+      properties:
+        bookId:
+          type: string
+          description: The ID of the book to update
+        authorId:
+          type: string
+          description: The new author ID for the book
+    Status:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+    ResponseTemplate:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/Status'
+        body:
+          type: object
+    Successfully:
+      allOf:
+        - $ref: '#/components/schemas/ResponseTemplate'
+      example:
+        status:
+          code: 200
+        message: ok
+        body: {}
+
+    BookListBody:
+      allOf:
+        - $ref: '#/components/schemas/ResponseTemplate'
+        - properties:
+            body:
+              type: array
+              items:
+                $ref: '#/components/schemas/Book'
+    CrupdateBookListBody:
+      allOf:
+        - $ref: '#/components/schemas/ResponseTemplate'
+        - properties:
+            body:
+              type: array
+              items:
+                $ref: '#/components/schemas/CrupdateBooks'
+    UpdateBookListBody:
+      allOf:
+        - $ref: '#/components/schemas/ResponseTemplate'
+        - properties:
+            body:
+              type: array
+              items:
+                $ref: '#/components/schemas/UpdateBooks'
+
+    AuthorListBody:
+      allOf:
+        - $ref: '#/components/schemas/ResponseTemplate'
+        - properties:
+            body:
+              type: array
+              items:
+                $ref: '#/components/schemas/Author'
+
+    VisitorListBody:
+      allOf:
+        - $ref: '#/components/schemas/ResponseTemplate'
+        - properties:
+            body:
+              type: array
+              items:
+                $ref: '#/components/schemas/Visitor'
+    EmpruntDetailsBody:
+      allOf:
+        - $ref: '#/components/schemas/ResponseTemplate'
+        - properties:
+            body:
+              type: array
+              items:
+                $ref: '#/components/schemas/EmpruntDetails'
+    BadRequestException:
+      allOf:
+        - $ref: '#/components/schemas/ResponseTemplate'
+      example:
+        status:
+          code: 400
+        message: bad request
+        body: ''
+    NotAuthorizedException:
+      allOf:
+        - $ref: '#/components/schemas/ResponseTemplate'
+      example:
+        status:
+          code: 403
+        message: Not authorized
+        body:
+    InternalServerException:
+      allOf:
+        - $ref: '#/components/schemas/ResponseTemplate'
+      example:
+        status:
+          code: 500
+        message: InternalServerException
+        body:
+    ImportAuthor:
+      oneOf:
+        - $ref: '#/components/schemas/ImportAuthorExel'
+        - $ref: '#/components/schemas/ImportAuthorJson'
+    ImportBook:
+      type: object
+      properties:
+        idAuthor:
+          type: integer
+      oneOf:
+        - $ref: '#/components/schemas/ImportBookExel'
+        - $ref: '#/components/schemas/ImportBookJson'
+    ImportBookExel:
+      $ref: '#/components/schemas/Book'
+    ImportBookJson:
+      $ref: '#/components/schemas/Book'
+    ImportAuthorExel:
+      $ref: '#/components/schemas/Author'
+    ImportAuthorJson:
+      $ref: '#/components/schemas/Author'
+
+    OutputData:
+      type: object
+      properties:
+        message:
+          type: string
+    ImportChoice:
+      oneOf:
+        - $ref: '#/components/schemas/ImportAuthor'
+        - $ref: '#/components/schemas/ImportBook'
+      properties:
+        outputData:
+          $ref: '#/components/schemas/OutputData'
+  parameters:
+    QueryPagination:
+      name: queryPagination
+      in: query
+      description: Paramètres de pagination.
+      required: false
+      schema:
+        type: object
+        properties:
+          page:
+            type: integer
+            default: 1
+            description: Le numéro de page.
+          page_size:
+            type: integer
+            default: 50
+            description: Le nombre d'éléments par page
+
+
+    PathPagination:
+      name: queryPagination
+      in: path
+      description: pagination parametters.
+      required: true
+      schema:
+        type: object
+        properties:
+          page:
+            type: integer
+            default: 1
+            description: page number.
+          page_size:
+            type: integer
+            default: 50
+            description: Page size
+

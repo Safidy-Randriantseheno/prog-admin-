@@ -1,4 +1,16 @@
 package model;
+
+import lombok.*;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import repository.types.PostgresEnumType;
+
+import javax.persistence.*;
+
+import java.io.Serializable;
+
+import static javax.persistence.GenerationType.IDENTITY;
+
 @Entity
 @Table(name = "\"author\"")
 @TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
@@ -8,7 +20,7 @@ package model;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Author {
+public class Author implements Serializable {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private String id;
