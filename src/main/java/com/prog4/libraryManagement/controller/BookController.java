@@ -9,7 +9,7 @@ import com.prog4.libraryManagement.service.BookService;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/books")
 @AllArgsConstructor
 public class BookController {
