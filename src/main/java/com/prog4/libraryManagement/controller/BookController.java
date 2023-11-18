@@ -1,25 +1,20 @@
-package controller;
+package com.prog4.libraryManagement.controller;
 
+import com.prog4.libraryManagement.model.Book;
 import lombok.AllArgsConstructor;
-import model.Book;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import service.BookService;
+import com.prog4.libraryManagement.service.BookService;
 
 import java.util.List;
 
 @Controller
 @RequestMapping("/books")
+@AllArgsConstructor
 public class BookController {
 
     private final BookService bookService;
-
-    @Autowired
-    public BookController(BookService bookService) {
-        this.bookService = bookService;
-    }
-
     @GetMapping
     public List<Book> getAllBooks() {
         return bookService.getAll();

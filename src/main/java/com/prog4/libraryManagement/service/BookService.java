@@ -1,20 +1,18 @@
-package service;
+package com.prog4.libraryManagement.service;
 
-import model.Book;
-import org.apache.catalina.LifecycleState;
+import com.prog4.libraryManagement.model.Book;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import repository.BookCrudOperations;
+import com.prog4.libraryManagement.repository.BookCrudOperations;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class BookService {
     private BookCrudOperations bookRepository;
-    @Autowired
-    public BookService(BookCrudOperations bookRepository) {
-        this.bookRepository = bookRepository;
-    }
+
     public List<Book> getAll(){
         return bookRepository.findAll();
     }

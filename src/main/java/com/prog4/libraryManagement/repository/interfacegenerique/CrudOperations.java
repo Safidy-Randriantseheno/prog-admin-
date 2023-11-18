@@ -1,4 +1,4 @@
-package repository.interfacegenerique;
+package com.prog4.libraryManagement.repository.interfacegenerique;
 
 import java.util.List;
 

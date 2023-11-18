@@ -1,13 +1,12 @@
-package repository;
+package com.prog4.libraryManagement.repository;
 
-import model.User;
-import repository.interfacegenerique.CrudOperations;
+import com.prog4.libraryManagement.model.User;
+import com.prog4.libraryManagement.repository.interfacegenerique.CrudOperations;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package model;
+package com.prog4.libraryManagement.model;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -15,7 +15,7 @@ import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-import repository.types.PostgresEnumType;
+import com.prog4.libraryManagement.repository.types.PostgresEnumType;
 
 
 @Entity

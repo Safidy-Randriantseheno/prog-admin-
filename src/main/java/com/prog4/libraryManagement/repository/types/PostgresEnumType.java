@@ -1,4 +1,4 @@
-package repository.types;
+package com.prog4.libraryManagement.repository.types;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
