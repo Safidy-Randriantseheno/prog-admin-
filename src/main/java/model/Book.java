@@ -28,10 +28,10 @@ public class Book implements Serializable {
     @Type(type = "pgsql_enum")
     private Topic topic;
 
-    private int pageNumbre;
+    private int pageNumber;
     private Date releaseDate;
     @Type(type = "pgsql_enum")
-    private Availability avalability;
+    private Availability availability;
 
     @ManyToOne
     @JoinColumn(name = "author_id" , nullable = false)

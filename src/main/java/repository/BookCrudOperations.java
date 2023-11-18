@@ -28,9 +28,9 @@ public class BookCrudOperations implements CrudOperations<Book> {
                     Book book = new Book();
                     book.setId(resultSet.getString("id"));
                     book.setBookName(resultSet.getString("title"));
-                    book.setPageNumbre(resultSet.getInt("pageNumbre"));
+                    book.setPageNumber(resultSet.getInt("pageNumbre"));
                     book.setReleaseDate(resultSet.getDate("releaseDate"));
-                    book.setAvalability(Book.Availability.valueOf(resultSet.getString("avalability")));
+                    book.setAvailability(Book.Availability.valueOf(resultSet.getString("avalability")));
                     book.setTopic(Book.Topic.valueOf(resultSet.getString("topic")));
                     String authorId = resultSet.getString("author_id");
                     Author author = findAuthorById(authorId);
@@ -66,14 +66,14 @@ public class BookCrudOperations implements CrudOperations<Book> {
 
     @Override
     public Book save(Book toSave) {
-        String query = "INSERT INTO books (id, title, pageNumbre, releaseDate, avalability, topic, author_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO books (id, title, pageNumber, releaseDate, availability, topic, author_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement statement = connection.prepareStatement(query)) {
                 statement.setString(1, toSave.getId());
                 statement.setString(2, toSave.getBookName());
-                statement.setInt(3, toSave.getPageNumbre());
+                statement.setInt(3, toSave.getPageNumber());
                 statement.setDate(4, new java.sql.Date(toSave.getReleaseDate().getTime()));
-                statement.setString(5, toSave.getAvalability().name());
+                statement.setString(5, toSave.getAvailability().name());
                 statement.setString(6, toSave.getTopic().name());
                 statement.setString(7, toSave.getAuthor().getId());
                 statement.addBatch();
