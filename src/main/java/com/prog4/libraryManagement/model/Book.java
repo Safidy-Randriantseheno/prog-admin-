@@ -12,7 +12,7 @@ import java.util.Date;
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
-@Table(name = "\"Book\"")
+@Table(name = "\"book\"")
 @TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
 @Getter
 @Setter

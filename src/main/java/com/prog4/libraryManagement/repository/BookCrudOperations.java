@@ -1,7 +1,9 @@
 package repository;
 
+import lombok.AllArgsConstructor;
 import model.Author;
 import model.Book;
+import org.springframework.stereotype.Repository;
 import repository.interfacegenerique.CrudOperations;
 
 import java.sql.Connection;
@@ -11,26 +13,24 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
+@Repository
+@AllArgsConstructor
 public class BookCrudOperations implements CrudOperations<Book> {
     private Connection connection;
-    public BookCrudOperations(Connection connection) {
-        this.connection = connection;
-    }
     @Override
     public List<Book> findAll() {
         List<Book> books = new ArrayList<>();
         try {
-            String query = "SELECT * FROM books";
+            String query = "SELECT * FROM book";
             try (PreparedStatement statement = connection.prepareStatement(query);
                  ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     Book book = new Book();
                     book.setId(resultSet.getString("id"));
                     book.setBookName(resultSet.getString("title"));
-                    book.setPageNumber(resultSet.getInt("pageNumbre"));
+                    book.setPageNumber(resultSet.getInt("pageNumber"));
                     book.setReleaseDate(resultSet.getDate("releaseDate"));
-                    book.setAvailability(Book.Availability.valueOf(resultSet.getString("avalability")));
+                    book.setAvailability(Book.Availability.valueOf(resultSet.getString("availability")));
                     book.setTopic(Book.Topic.valueOf(resultSet.getString("topic")));
                     String authorId = resultSet.getString("author_id");
                     Author author = findAuthorById(authorId);

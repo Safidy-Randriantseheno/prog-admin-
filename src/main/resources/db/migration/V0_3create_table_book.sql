@@ -13,6 +13,7 @@ create table if not exists "book"
     book_name        varchar                  not null,
     page_number        varchar                  not null,
     sex               sex                      not null,
-    birth_date        date                     not null
+    birth_date        date                     not null,
+    author_id         VARCHAR NOT NULL REFERENCES "author"("id")
 );
 create index if not exists book_name_index on "book" (book_name);
