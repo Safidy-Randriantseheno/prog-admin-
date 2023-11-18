@@ -1,4 +1,4 @@
-package repository;
+package service;
 
 import model.User;
 import repository.interfacegenerique.CrudOperations;
