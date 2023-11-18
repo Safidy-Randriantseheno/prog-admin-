@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class BookCrudOperations implements CrudOperations<Book> {
@@ -64,15 +65,29 @@ public class BookCrudOperations implements CrudOperations<Book> {
 
 
     @Override
-    public List<Book> saveAll(List<Book> toSave) {
-        bookList.addAll(toSave);
-        return bookList;
-    }
-    @Override
     public Book save(Book toSave) {
-        bookList.add(toSave);
-        return toSave;
+        String query = "INSERT INTO books (id, title, pageNumbre, releaseDate, avalability, topic, author_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, toSave.getId());
+                statement.setString(2, toSave.getBookName());
+                statement.setInt(3, toSave.getPageNumbre());
+                statement.setDate(4, new java.sql.Date(toSave.getReleaseDate().getTime()));
+                statement.setString(5, toSave.getAvalability().name());
+                statement.setString(6, toSave.getTopic().name());
+                statement.setString(7, toSave.getAuthor().getId());
+                statement.addBatch();
+
+
+            int[] affectedRows = statement.executeBatch();
+            return toSave;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
+
+
     @Override
     public Book delete(Book toDelete) {
         bookList.remove(toDelete);
