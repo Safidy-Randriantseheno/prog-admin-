@@ -13,6 +13,6 @@ create table if not exists "author"
     first_name        varchar                  not null,
     last_name         varchar                  not null,
     sex               sex                      not null,
-    birth_date        date                     not null,
+    birth_date        date                     not null
 );
 create index if not exists author_last_name_index on "author" (last_name);
