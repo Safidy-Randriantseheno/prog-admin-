@@ -1,37 +1,35 @@
 package repository;
 
+import lombok.AllArgsConstructor;
 import model.Author;
-import model.Book;
-import net.bytebuddy.agent.builder.AgentBuilder;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
 import repository.interfacegenerique.CrudOperations;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
+@AllArgsConstructor
+@ComponentScan
 public class AuthorCrudOperation implements CrudOperations<Author> {
-    private Connection connection;
-    public AuthorCrudOperation(Connection connection) {
-        this.connection = connection;
-    }
-    @Override
-    public List<Author> findAll(){
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
+    @Override
+    public List<Author> findAll() {
         List<Author> authors = new ArrayList<>();
-        try {
-            String query = "SELECT * FROM authors";
-            try (PreparedStatement statement = connection.prepareStatement(query);
-                 ResultSet resultSet = statement.executeQuery()) {
-                while (resultSet.next()) {
-                    Author author = new Author();
-                    author.setId(resultSet.getString("id"));
-                    author.setName(resultSet.getString("name"));
-                    author.setSex(Author.Sex.valueOf(resultSet.getString("sex")));
-                    authors.add(author);
-                }
+        String query = "SELECT * FROM author";
+        try (Connection connection = jdbcTemplate.getDataSource().getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(query)) {
+            while (resultSet.next()) {
+                String id = resultSet.getString("id");
+                String name = resultSet.getString("name");
+                Author.Sex sex = Author.Sex.valueOf(resultSet.getString("sex"));
+                authors.add(new Author(id, name, sex));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -53,37 +51,33 @@ public class AuthorCrudOperation implements CrudOperations<Author> {
 
     @Override
     public Author save(Author toSave) {
-        String query = "INSERT INTO authors (id, name, sex) VALUES (?, ?, ?)";
-
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setString(1, toSave.getId());
-            statement.setString(2, toSave.getName());
-            statement.setString(3, toSave.getSex().name());
-            statement.addBatch();
-            int[] affectedRows = statement.executeBatch();
-            return toSave;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    @Override
-    public Author delete(Author toDelete) {
-        String query = "DELETE FROM authors WHERE id = ?";
-
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setString(1, toDelete.getId());
-
-            int affectedRows = statement.executeUpdate();
-
-            if (affectedRows > 0) {
-                return toDelete;
+        String query = "INSERT INTO author (name, sex) VALUES (?, ?)";
+        try (Connection connection = jdbcTemplate.getDataSource().getConnection();
+             PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+            statement.setString(1, toSave.getName());
+            statement.setString(2, toSave.getSex().name());
+            statement.executeUpdate();
+            try (ResultSet resultSet = statement.getGeneratedKeys()) {
+                if (resultSet.next()) {
+                    toSave.setId(resultSet.getString(1));
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return toSave;
+    }
 
-        return null;
+    @Override
+    public Author delete(Author toDelete) {
+        String query = "DELETE FROM author WHERE id = ?";
+        try (Connection connection = jdbcTemplate.getDataSource().getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, toDelete.getId());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return toDelete;
     }
 }
