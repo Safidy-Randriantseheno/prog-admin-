@@ -16,7 +16,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;
 
@@ -50,6 +53,8 @@ public class LibraryManagementApplication {
 		};
 	}
 	private static void testAuthorCrudOperations(AuthorCrudOperation authorCrudOperations) {
+		String dateOfBirthString = "1990-01-01";
+		Date dateOfBirth = parseDate(dateOfBirthString);
 		// Test findAll
 		List<Author> authors = authorCrudOperations.findAll();
 		logger.info("Authors: {}", authors);
@@ -60,6 +65,7 @@ public class LibraryManagementApplication {
 				.lastName("Rakoto")
 				.firstName("solo")
 				.sex(Author.Sex.M)
+				.birthDate(dateOfBirth)
 				.build();
 		Author savedAuthor = authorCrudOperations.save(newAuthor);
 		logger.info("Author saved: {}", savedAuthor);
@@ -71,12 +77,14 @@ public class LibraryManagementApplication {
 						.lastName("Rakoto")
 						.firstName("solo")
 						.sex(Author.Sex.M)
+						.birthDate(dateOfBirth)
 				.build(),
 				Author.builder()
 						.id("3")
 						.lastName("Rakoto")
 						.firstName("solo")
 						.sex(Author.Sex.F)
+						.birthDate(dateOfBirth)
 						.build());
 		List<Author> savedAuthors = authorCrudOperations.saveAll(authorListToSave);
 		logger.info("Authors saved: {}", savedAuthors);
@@ -85,5 +93,14 @@ public class LibraryManagementApplication {
 		Author authorToDelete = savedAuthor;
 		Author deletedAuthor = authorCrudOperations.delete(authorToDelete);
 		logger.info("Author deleted: {}", deletedAuthor);
+	}
+	private static Date parseDate(String dateString) {
+		try {
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			return dateFormat.parse(dateString);
+		} catch (ParseException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

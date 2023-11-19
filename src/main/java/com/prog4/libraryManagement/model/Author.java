@@ -3,12 +3,12 @@ package com.prog4.libraryManagement.model;
 import lombok.*;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-import org.springframework.stereotype.Component;
 import com.prog4.libraryManagement.repository.types.PostgresEnumType;
 
 import javax.persistence.*;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -32,6 +32,8 @@ public class Author implements Serializable {
     @Type(type = "pgsql_enum")
     @Enumerated(EnumType.STRING)
     private Sex sex;
+    @Column(name = "birth_date")
+    private Date birthDate;
     public enum Sex {
         M, F
     }

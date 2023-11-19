@@ -28,8 +28,9 @@ public class AuthorCrudOperation implements CrudOperations<Author> {
                 String id = resultSet.getString("id");
                 String lastName = resultSet.getString("last_name");
                 String firstName = resultSet.getString("first_name");
-                Author.Sex sex = Author.Sex.valueOf(resultSet.getString("sex"));
-                authors.add(new Author(id, lastName,firstName, sex));
+                Author.Sex sex = (Author.Sex) resultSet.getObject("sex", Author.Sex.class);
+                Date birthDate = resultSet.getDate("birth_date");
+                authors.add(new Author(id, lastName,firstName, sex, birthDate));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -51,13 +52,14 @@ public class AuthorCrudOperation implements CrudOperations<Author> {
 
     @Override
     public Author save(Author toSave) {
-        String query = "INSERT INTO author (id,last_name,first_name,sex) VALUES (?, ?, ?, ?)";
+        String query = "INSERT INTO author (id,last_name,first_name,sex,birth_date) VALUES (?, ?, ?, ?, ?)";
         try (Connection connection = jdbcTemplate.getDataSource().getConnection();
              PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, toSave.getId());
             statement.setString(2, toSave.getFirstName());
             statement.setString(3, toSave.getLastName());
-            statement.setString(4, toSave.getSex().toString());
+            statement.setObject(4, toSave.getSex(), Types.OTHER);
+            statement.setDate(5, new java.sql.Date(toSave.getBirthDate().getTime()));
             statement.executeUpdate();
             try (ResultSet resultSet = statement.getGeneratedKeys()) {
                 if (resultSet.next()) {
@@ -103,7 +105,12 @@ public class AuthorCrudOperation implements CrudOperations<Author> {
         author.setId(resultSet.getString("id"));
         author.setLastName(resultSet.getString("last_name"));
         author.setFirstName(resultSet.getString("first_name"));
-        author.setSex(Author.Sex.valueOf(resultSet.getString("sex")));
+        author.setSex(resultSet.getString("sex") != null ?
+                Author.Sex.valueOf(resultSet.getString("sex")) : null);
+        Timestamp timestamp = resultSet.getTimestamp("birth_date");
+        if (timestamp != null) {
+            author.setBirthDate(new Date(timestamp.getTime()));
+        }
         return author;
     }
 }
