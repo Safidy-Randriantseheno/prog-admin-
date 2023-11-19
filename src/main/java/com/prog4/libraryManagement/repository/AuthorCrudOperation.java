@@ -1,19 +1,18 @@
-package repository;
+package com.prog4.libraryManagement.repository;
 
+import com.prog4.libraryManagement.repository.interfacegenerique.CrudOperations;
 import lombok.AllArgsConstructor;
-import model.Author;
+import com.prog4.libraryManagement.model.Author;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
-import repository.interfacegenerique.CrudOperations;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 @AllArgsConstructor
-@ComponentScan
+@Repository
 public class AuthorCrudOperation implements CrudOperations<Author> {
     @Autowired
     private JdbcTemplate jdbcTemplate;
