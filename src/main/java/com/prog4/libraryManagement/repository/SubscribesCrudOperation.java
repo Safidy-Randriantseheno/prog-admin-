@@ -1,7 +1,5 @@
 package com.prog4.libraryManagement.repository;
 
-import com.prog4.libraryManagement.model.Author;
-import com.prog4.libraryManagement.model.Book;
 import com.prog4.libraryManagement.model.User;
 import com.prog4.libraryManagement.repository.interfacegenerique.CrudOperations;
 import lombok.AllArgsConstructor;
