@@ -120,7 +120,8 @@ public class BookCrudOperations implements CrudOperations<Book> {
     private Author mapResultSetToAuthor(ResultSet resultSet) throws SQLException {
         Author author = new Author();
         author.setId(resultSet.getString("id"));
-        author.setName(resultSet.getString("name"));
+        author.setLastName(resultSet.getString("last_name"));
+        author.setFirstName(resultSet.getString("first_name"));
         author.setSex(Author.Sex.valueOf(resultSet.getString("sex")));
         return author;
     }
