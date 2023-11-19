@@ -1,7 +1,13 @@
 package com.prog4.libraryManagement.repository;
 
+import com.prog4.libraryManagement.model.Author;
+import com.prog4.libraryManagement.model.Book;
 import com.prog4.libraryManagement.model.User;
 import com.prog4.libraryManagement.repository.interfacegenerique.CrudOperations;
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,19 +15,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
+@Repository
+@AllArgsConstructor
 public class SubscribesCrudOperation implements CrudOperations<User> {
-    private Connection connection;
-
-    public SubscribesCrudOperation(Connection connection) {
-        this.connection = connection;
-    }
-
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
     @Override
     public List<User> findAll() {
         List<User> userList = new ArrayList<>();
-        try {
-            String query = "SELECT * FROM users";
+        try (Connection connection = jdbcTemplate.getDataSource().getConnection()){
+             String query = "SELECT * FROM book";
             try (PreparedStatement statement = connection.prepareStatement(query);
                  ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
@@ -37,37 +40,9 @@ public class SubscribesCrudOperation implements CrudOperations<User> {
 
     @Override
     public List<User> saveAll(List<User> toSave) {
-        try {
-            connection.setAutoCommit(false);
-            String query = "INSERT INTO users (id, firstName, lastName, email, ref, status, phone, birthDate, entranceDatetime, sex, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            try (PreparedStatement statement = connection.prepareStatement(query)) {
-                for (User user : toSave) {
-                    setParametersForUser(statement, user);
-                    statement.addBatch();
-                }
-                statement.executeBatch();
-                connection.commit();
-            }
-            connection.setAutoCommit(true);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            try {
-                connection.rollback();
-                connection.setAutoCommit(true);
-            } catch (SQLException rollbackException) {
-                rollbackException.printStackTrace();
-            }
-        }
-        return findAll();
-    }
-
-    @Override
-    public User save(User toSave) {
-        try {
-            String query = "INSERT INTO users (id, firstName, lastName, email, ref, status, phone, birthDate, entranceDatetime, sex, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            try (PreparedStatement statement = connection.prepareStatement(query)) {
-                setParametersForUser(statement, toSave);
-                statement.executeUpdate();
+        try (Connection connection = jdbcTemplate.getDataSource().getConnection()) {
+            for (User user : toSave) {
+                save(user);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -76,14 +51,28 @@ public class SubscribesCrudOperation implements CrudOperations<User> {
     }
 
     @Override
+    public User save(User toSave) {
+            String query = "INSERT INTO users (id, firstName, lastName, email, ref, status, phone, birthDate, entranceDatetime, sex, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            try (Connection connection = jdbcTemplate.getDataSource().getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+                setParametersForUser(statement, toSave);
+                statement.executeUpdate();
+            }
+         catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return toSave;
+    }
+
+    @Override
     public User delete(User toDelete) {
-        try {
             String query = "DELETE FROM users WHERE id = ?";
-            try (PreparedStatement statement = connection.prepareStatement(query)) {
+            try (Connection connection = jdbcTemplate.getDataSource().getConnection();
+                 PreparedStatement statement = connection.prepareStatement(query)) {
                 statement.setString(1, toDelete.getId());
                 statement.executeUpdate();
             }
-        } catch (SQLException e) {
+         catch (SQLException e) {
             e.printStackTrace();
         }
         return toDelete;
