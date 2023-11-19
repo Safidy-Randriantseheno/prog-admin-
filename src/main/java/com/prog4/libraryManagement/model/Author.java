@@ -21,13 +21,14 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Component
 public class Author implements Serializable {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private String id;
-    @Column(name = "name")
-    private String name;
+    @Column(name = "last_name")
+    private String lastName;
+    @Column(name = "first_name")
+    private String firstName;
     @Type(type = "pgsql_enum")
     @Enumerated(EnumType.STRING)
     private Sex sex;

@@ -1,7 +1,6 @@
 package com.prog4.libraryManagement.service;
 
 import com.prog4.libraryManagement.model.Author;
-import com.prog4.libraryManagement.model.Book;
 import com.prog4.libraryManagement.repository.AuthorCrudOperation;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;

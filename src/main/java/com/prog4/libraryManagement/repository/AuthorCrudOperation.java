@@ -26,9 +26,10 @@ public class AuthorCrudOperation implements CrudOperations<Author> {
              ResultSet resultSet = statement.executeQuery(query)) {
             while (resultSet.next()) {
                 String id = resultSet.getString("id");
-                String name = resultSet.getString("name");
+                String lastName = resultSet.getString("last_name");
+                String firstName = resultSet.getString("first_name");
                 Author.Sex sex = Author.Sex.valueOf(resultSet.getString("sex"));
-                authors.add(new Author(id, name, sex));
+                authors.add(new Author(id, lastName,firstName, sex));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -50,11 +51,13 @@ public class AuthorCrudOperation implements CrudOperations<Author> {
 
     @Override
     public Author save(Author toSave) {
-        String query = "INSERT INTO author (name, sex) VALUES (?, ?)";
+        String query = "INSERT INTO author (id,last_name,first_name,sex) VALUES (?, ?, ?, ?)";
         try (Connection connection = jdbcTemplate.getDataSource().getConnection();
              PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            statement.setString(1, toSave.getName());
-            statement.setString(2, toSave.getSex().name());
+            statement.setString(1, toSave.getId());
+            statement.setString(2, toSave.getFirstName());
+            statement.setString(3, toSave.getLastName());
+            statement.setString(4, toSave.getSex().toString());
             statement.executeUpdate();
             try (ResultSet resultSet = statement.getGeneratedKeys()) {
                 if (resultSet.next()) {
@@ -78,5 +81,29 @@ public class AuthorCrudOperation implements CrudOperations<Author> {
             e.printStackTrace();
         }
         return toDelete;
+    }
+
+    public Author findAuthorById(String authorId) {
+        String query = "SELECT * FROM author WHERE id = ?";
+        try (Connection connection = jdbcTemplate.getDataSource().getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, authorId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return mapResultSetToAuthor(resultSet);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    private Author mapResultSetToAuthor(ResultSet resultSet) throws SQLException {
+        Author author = new Author();
+        author.setId(resultSet.getString("id"));
+        author.setLastName(resultSet.getString("last_name"));
+        author.setFirstName(resultSet.getString("first_name"));
+        author.setSex(Author.Sex.valueOf(resultSet.getString("sex")));
+        return author;
     }
 }
